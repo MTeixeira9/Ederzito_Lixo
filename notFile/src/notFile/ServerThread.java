@@ -3,17 +3,20 @@ package notFile;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
 import java.net.Socket;
 
 public class ServerThread extends Thread {
-	
+
 	private Socket socket;
 	private static final String REP_FINAL = "notFileRepositorio/";
+	private String ipUser;
 	private File users;
 	private File connectedClients;
 
@@ -22,7 +25,9 @@ public class ServerThread extends Thread {
 	 * @param inSoc Socket onde o Cliente se conectou
 	 */
 	public ServerThread(Socket inSoc) {
-		socket = inSoc; 
+		socket = inSoc;
+		//obter IP do cliente que se ligou
+		ipUser = inSoc.getRemoteSocketAddress().toString();
 	}
 
 	/**
@@ -62,17 +67,21 @@ public class ServerThread extends Thread {
 			pedeOperacoes(in, out, user, pass);
 
 
-		} catch (IOException e) {
+		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
-		
+
 	}
-	
-	private void pedeOperacoes(ObjectInputStream in, ObjectOutputStream out, String user, String pass) {
+
+	private void pedeOperacoes(ObjectInputStream in, ObjectOutputStream out, String user, String pass) throws ClassNotFoundException, IOException {
 
 		boolean logado = true;
-		
-		
+
+		//regista o cliente como connetado
+		registNewConnectedUser(user, ipUser);
+
+		//envia ao cliente a lista de atuais clientes conetados
+		sendConnectedUsers(out);
 
 		while (logado) { //cliente tem operacoes p/ fazer
 
@@ -81,6 +90,12 @@ public class ServerThread extends Thread {
 			case "-a":
 				System.out.println( "\n" + user + " quer adicionar uma fotografia:");
 				//adicionaFotosSV(in, out, user);
+				break;
+
+			case "-quit":
+				System.out.println("\n" + user + " fez log out.");
+				logado = false;
+				removeUser(user);
 				break;
 
 			default:
@@ -92,7 +107,68 @@ public class ServerThread extends Thread {
 		in.close();
 		out.close();
 		socket.close();
-		
+
+	}
+
+	private void sendConnectedUsers(ObjectOutputStream out) throws IOException {
+
+		try {
+
+			BufferedReader br = new BufferedReader(new FileReader(connectedClients));
+			StringBuilder sb = new StringBuilder();
+			String ln;
+
+			while ((ln = br.readLine()) != null) {
+				sb.append(ln + '\n');
+			}
+
+			br.close();
+			
+			out.writeObject(sb.toString());
+
+		}catch(FileNotFoundException ex) {
+			ex.printStackTrace();
+		}
+
+	}
+
+	private void removeUser(String user) throws IOException {
+
+		try {
+
+			File temp = new File (connectedClients.getAbsolutePath() + ".tmp");
+			BufferedReader br = new BufferedReader(new FileReader(connectedClients));
+			PrintWriter pw =  new PrintWriter(new FileWriter(temp));
+			String ln;
+
+			while ((ln = br.readLine()) != null) {
+
+				if (!ln.trim().startsWith(user)) {
+					pw.println(ln);
+					pw.flush();
+				}
+			}
+
+			pw.close();
+			br.close();
+
+			connectedClients.delete();
+			temp.renameTo(connectedClients);
+
+		}catch(FileNotFoundException ex) {
+			ex.printStackTrace();
+		}
+
+	}
+
+	private void registNewConnectedUser(String user, String ipUser) throws IOException {
+
+		BufferedWriter bw = new BufferedWriter(new FileWriter(connectedClients, true));
+		bw.write(user + " - " + ipUser);
+		bw.newLine();
+		bw.flush();
+		bw.close();
+
 	}
 
 	/**
@@ -143,7 +219,7 @@ public class ServerThread extends Thread {
 		return true;
 
 	}
-	
+
 	/**
 	 * Cria repositorio
 	 */
@@ -164,10 +240,10 @@ public class ServerThread extends Thread {
 
 			if(!users.exists())
 				users.createNewFile();
-			
+
 			//cria ficheiro users.txt
 			connectedClients = new File(REP_FINAL + "conClients.txt");
-			
+
 			if(!connectedClients.exists())
 				connectedClients.createNewFile();
 

@@ -1,6 +1,8 @@
 package notFile;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -11,6 +13,7 @@ import java.util.Scanner;
 public class Client {
 	
 	private static final String REP_FINAL = "RepositorioLocal/";
+	private File connectedClients;
 
 	/**
 	 * Main do Cliente
@@ -73,15 +76,88 @@ public class Client {
 
 		criaRepLocal(user); //repositorio de cada cliente fora do servidor
 
-		//insereOperacoes(in, out, sc, socket, user);
+		insereOperacoes(in, out, sc, socket, user);
 
+	}
+
+	/**
+	 * Cliente insere a operacao desejada
+	 * @param in Canal para receber informacao
+	 * @param out Canal para enviar informacao 
+	 * @param sc Scanner de entrada de dados
+	 * @param socket Canal de ligacao entre o Cliente e o Servidor
+	 * @param user Utilizador (local) que estah logado
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	private void insereOperacoes(ObjectInputStream in, ObjectOutputStream out, Scanner sc, Socket socket, String user) throws IOException, ClassNotFoundException {
+
+		boolean logado = true;
+		
+		//recebe lista de clientes conetados
+		receiveConnectedClients(in);
+
+		while (logado) { //cliente tem operacoes p/ fazer
+
+			System.out.println("\n Operacoes disponiveis: ");
+			//System.out.println("|-a <photos>|	       |-l <userId>|	                 |-i <userId> <photo>|");
+			//System.out.println("|-g <userId>|	       |-c <comment> <userId> <photo>|   |-L <userId> <photo>|");
+			//System.out.println("|-D <userId> <photo>|  |-f <followUserIds>|              |-r <followUserIds> |"); 
+			System.out.println("|-quit| \n");
+			System.out.print("Insira uma nova operacao: ");
+
+			String op = sc.nextLine(); //operacao do cliente
+			String [] comandos = op.split(" ");
+
+			switch (comandos[0]) {
+
+			case "-a":
+
+				if (comandos.length != 2) {
+					System.err.println("Nao inseriu os argumentos corretamente!");
+					break;
+				}
+
+				out.writeObject(comandos[0]);
+				//adicionaFotos(comandos[1], out, in);
+				break;	
+
+			case "-quit":
+				out.writeObject(comandos[0]);
+				System.out.println(user + " fez log out.");
+				logado = false;
+				break;
+
+			default:
+				System.err.println("O comando que inseriu nao estah definido.");
+				break;
+			}
+		}
+
+		in.close();
+		out.close();
+		sc.close();
+		socket.close();
+		
+	}
+
+	private void receiveConnectedClients(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		
+		String users = (String) in.readObject();
+
+		BufferedWriter bw = new BufferedWriter(new FileWriter(connectedClients, true));
+		bw.write(users);
+		bw.flush();
+		bw.close();
+		
 	}
 
 	/**
 	 * Cria o repositorio local do Utilizador que estah logado
 	 * @param userLocal Utilizador logado
+	 * @throws IOException 
 	 */
-	private void criaRepLocal(String userLocal) {
+	private void criaRepLocal(String userLocal) throws IOException {
 
 		File repLocal = new File("RepositorioLocal"); //Cria a raiz do rep local
 		File repUserLocal = new File(REP_FINAL + userLocal);
@@ -105,6 +181,10 @@ public class Client {
 			System.out.println("Repositorio Local de " + userLocal + " criado.");
 			repUserLocal.mkdirs(); // Cria diretoria
 		}
+		
+		//cria ficheiro conClients.txt sempre que o cliente se liga
+		connectedClients = new File(REP_FINAL + "conClients.txt");
+		connectedClients.createNewFile();
 	}
 
 }
