@@ -1,0 +1,5 @@
+There are 2 general solutions: server-full and server-less. In case of server based solutions all your clients should be pre-configured with the server's IP address. Server opens server socket and starts listening. So, each client connects to server and registers. The registration is very simple: server just needs the client's IP. Now server holds a list of connected clients and sends the list to each client. To make peer2peer app each client opens server socket too. When client A wishes to connect to client B it just connects to its socket.
+
+You can implement server-less solution. In this case you need some discovery mechanism based for example on broadcasting.
+
+I hope this helps. Good luck.
