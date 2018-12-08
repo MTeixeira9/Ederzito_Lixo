@@ -29,7 +29,7 @@ public class ServerThread extends Thread {
 	public ServerThread(Socket inSoc) {
 		socket = inSoc;
 		//obter IP do cliente que se ligou
-		ipUser = inSoc.getRemoteSocketAddress().toString();
+		ipUser = inSoc.getInetAddress().getHostAddress();
 		//portUser = "" + inSoc.getPort();
 	}
 
@@ -56,16 +56,16 @@ public class ServerThread extends Thread {
 
 				if (s1.equals("-n")) {
 					//String ip = InetAddress.getLocalHost().getHostAddress();
-					String port = (String)in.readObject();
+					//String port = (String)in.readObject();
 					
 					BufferedWriter bw = new BufferedWriter(new FileWriter(Client.REP_FINAL + "conClients.txt", true));
-					bw.write(ipUser + ":" + port);
+					bw.write(ipUser);
 					bw.newLine();
 					bw.flush();
 					bw.close();
 					
 					bw = new BufferedWriter(new FileWriter(connectedClients, true));
-					bw.write(ipUser + ":" + port);
+					bw.write(ipUser);
 					bw.newLine();
 					bw.flush();
 					bw.close();
