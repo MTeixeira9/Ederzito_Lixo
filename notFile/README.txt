@@ -7,6 +7,7 @@ Como executar:
 	2- Executar a classe Client, com os parâmetros:	
 		Program arguments: <localUserId> <password> <IP:23232>
 		(Exemplo de Program arguments: Joao 123 127.10.129.49:23232)
+		Tome 123 10.101.148.134:12345
 		
 //ALTERARRRRRRRRRRRRRRRRRRRRRRRRR
 
