@@ -121,13 +121,13 @@ public class ServerThread extends Thread {
 			
 			case "-p":
 				System.out.println( "\n" + user + " quer fazer upload de um ficheiro:");
-				String userIP = (String) in.readObject();
-				newConnectionSV(userIP);
+				uploadFileSV(in, out, user);
 				break;
 
 			case "-n":
 				System.out.println( "\n" + user + " recebeu uma ligacao:");
-				uploadFileSV(in, out, user);
+				String userIP = (String) in.readObject();
+				newConnectionSV(userIP);
 				break;
 
 			case "-c":

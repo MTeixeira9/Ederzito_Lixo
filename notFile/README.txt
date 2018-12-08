@@ -28,5 +28,5 @@ criado para cada Cliente).
 
 NOTA: Ao utilizar a operação '-a', quando indicar o Path da foto, não utilizar pastas cujo nome
       tenha espaços em branco. 
-      Por exemplo: C://Users/Joao Francisco/Imagens/sol.jpg -> este caminho não funcionará. 
+      Por exemplo: C://Users/Joao Francisco/Imagens/sol.jpg -> este caminho não funcionará.
       As barras também terão que ser orientadas neste sentido -> /
