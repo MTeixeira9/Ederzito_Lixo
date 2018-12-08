@@ -166,6 +166,8 @@ public class Client {
 		}
 		else {
 			out.writeObject("existe");
+			
+			String nome = f.substring(f.lastIndexOf("/")); //obter nome ficheiro
 
 			byte [] sizeFile  = new byte [(int)file.length()];
 
@@ -176,7 +178,7 @@ public class Client {
 			bis.close();
 			//System.out.println("Sending " + FILE_TO_SEND + "(" + mybytearray.length + " bytes)");
 			out.writeInt(sizeFile.length); //envia tamanho do ficheiro
-			out.writeObject(f); //envia nome do file
+			out.writeObject(nome); //enviar nome ficheiro
 			out.write(sizeFile,0,sizeFile.length); //envia ficheiro byte a byte
 			out.flush();
 

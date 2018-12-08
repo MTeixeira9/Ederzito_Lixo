@@ -163,11 +163,11 @@ public class ServerThread extends Thread {
 			 * Receber ficheiro
 			 */
 			int tamanhoFile = in.readInt(); //recebe tamanho do ficheiro
-			String nomeFile = (String) in.readObject(); //recebe nome ficheiro
-			String pathF = REP_FINAL + user + "/" + nomeFile;
+			String nome = (String) in.readObject(); //recebe nome do ficheiro
+			String pathF = REP_FINAL + user + nome;
 
 			byte[] myByteArray = new byte[tamanhoFile];
-			FileOutputStream fos = new FileOutputStream(REP_FINAL + user + "/" + nomeFile);
+			FileOutputStream fos = new FileOutputStream(pathF);
 			@SuppressWarnings("resource")
 			BufferedOutputStream bos = new BufferedOutputStream(fos);
 			int bytesRead = in.read(myByteArray,0,myByteArray.length);
