@@ -8,12 +8,15 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Client {
 	
 	private static final String REP_FINAL = "RepositorioLocal/";
-	private File connectedClients;
+	public static File connectedClients;
+	private List<Socket> conexoes;
 
 	/**
 	 * Main do Cliente
@@ -48,6 +51,7 @@ public class Client {
 		Socket socket = null;
 		ObjectOutputStream out = null;
 		ObjectInputStream in = null;
+		conexoes = new ArrayList<>();
 		Scanner sc = new Scanner(System.in);
 
 		if (args.length == 3) { 
@@ -100,7 +104,7 @@ public class Client {
 		while (logado) { //cliente tem operacoes p/ fazer
 
 			System.out.println("\n Operacoes disponiveis: ");
-			System.out.println("|-c <userIP>|	       |-p <file>|	                 |-s <query>|");
+			System.out.println("|-c <userIP> <userPort>|	       |-p <file>|	                 |-s <query>|");
 			System.out.println("|-quit| \n");
 			System.out.print("Insira uma nova operacao: ");
 
@@ -117,7 +121,7 @@ public class Client {
 				}
 
 				out.writeObject(comandos[0]);
-				connectTo(comandos[1], in, out);
+				connectTo(comandos[1], comandos[2], in, out, user);
 				break;	
 
 			case "-quit":
@@ -154,15 +158,30 @@ public class Client {
 		
 	}
 
-	private void connectTo(String usersIP, ObjectInputStream in, ObjectOutputStream out) throws IOException, ClassNotFoundException {
+	private void connectTo(String userIP, String userPort, ObjectInputStream in, ObjectOutputStream out, String user) throws IOException, ClassNotFoundException {
 
-		writeUsers(usersIP);
+		Socket socket = new Socket(userIP, Integer.parseInt(userPort)); //ligacao ao servidor
 		
-		out.writeObject(usersIP);
+		conexoes.add(socket);
+
+		ObjectOutputStream outSoc = new ObjectOutputStream(socket.getOutputStream());
+		ObjectInputStream inSoc = new ObjectInputStream(socket.getInputStream());
+		
+		outSoc.writeObject("-n");
+		outSoc.writeObject(userIP);
+		
+		String resConexao = (String) inSoc.readObject();
+		
+		if (resConexao.equals("ok"))
+			System.out.println("Conexao feita com sucesso");
+		
+		writeUsers(userIP);
+		
+		out.writeObject(userIP);
 		String result = (String) in.readObject();
 		
 		if (result.equals("ok"))
-			System.out.println("Conexao feita com sucesso");
+			System.out.println("Servidor de " + user + " adicionou a nova conexao");
 	}
 
 	/**

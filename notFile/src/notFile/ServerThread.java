@@ -86,6 +86,12 @@ public class ServerThread extends Thread {
 		while (logado) { //cliente tem operacoes p/ fazer
 
 			switch ((String)in.readObject()) {
+			
+			case "-n":
+				System.out.println( "\n" + user + " recebeu uma ligacao:");
+				String userIP = (String) in.readObject();
+				newConnectionSV(userIP);
+				break;
 
 			case "-c":
 				System.out.println( "\n" + user + " quer fazer uma ligacao:");
@@ -108,6 +114,13 @@ public class ServerThread extends Thread {
 		out.close();
 		socket.close();
 
+	}
+
+	private void newConnectionSV(String userIP) throws IOException {
+
+		registNewConnectedUser(userIP);
+		registNewConnectedUserInClientFile(userIP);
+		
 	}
 
 	private void connectToSV(ObjectInputStream in, ObjectOutputStream out, String user) throws ClassNotFoundException, IOException {
@@ -177,6 +190,17 @@ public class ServerThread extends Thread {
 		bw.flush();
 		bw.close();
 
+	}
+	
+	private void registNewConnectedUserInClientFile(String userIP) throws IOException {
+
+
+		BufferedWriter bw = new BufferedWriter(new FileWriter(Client.connectedClients, true));
+		bw.write(ipUser);
+		bw.newLine();
+		bw.flush();
+		bw.close();
+		
 	}
 
 	/**
