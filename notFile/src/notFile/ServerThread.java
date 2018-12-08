@@ -58,13 +58,13 @@ public class ServerThread extends Thread {
 				if (s1.equals("-n")) {
 					//String ip = InetAddress.getLocalHost().getHostAddress();
 					//String port = (String)in.readObject();
-					
+
 					BufferedWriter bw = new BufferedWriter(new FileWriter(Client.REP_FINAL + "conClients.txt", true));
 					bw.write(ipUser);
 					bw.newLine();
 					bw.flush();
 					bw.close();
-					
+
 					bw = new BufferedWriter(new FileWriter(connectedClients, true));
 					bw.write(ipUser);
 					bw.newLine();
@@ -118,7 +118,7 @@ public class ServerThread extends Thread {
 		while (logado) { //cliente tem operacoes p/ fazer
 
 			switch ((String)in.readObject()) {
-			
+
 			case "-p":
 				System.out.println( "\n" + user + " quer fazer upload de um ficheiro:");
 				uploadFileSV(in, out, user);
@@ -156,9 +156,9 @@ public class ServerThread extends Thread {
 	private void uploadFileSV(ObjectInputStream in, ObjectOutputStream out, String user) throws ClassNotFoundException, IOException {
 
 		String res = (String) in.readObject();
-		
+
 		if (res.equals("existe")) {
-			
+
 			/*
 			 * Receber ficheiro
 			 */
@@ -172,28 +172,18 @@ public class ServerThread extends Thread {
 			BufferedOutputStream bos = new BufferedOutputStream(fos);
 			int bytesRead = in.read(myByteArray,0,myByteArray.length);
 			int current = bytesRead;
-			
-			/*
-			 * Resultado da operacao + criacao de ficheiro
-			 */
-			if (new File(pathF).exists()) {//envia erro pq ficheiro jah existe
-				out.writeObject("err");
 
-				System.err.println("Ficheiro jah existe!");
-			}else { 
-				//criar o ficheiro
-				bos.write(myByteArray, 0, current);
-				bos.flush();
+			bos.write(myByteArray, 0, current);
+			bos.flush();
 
-				//acabar operacao com sucesso
-				out.writeObject("ok");
-				System.out.println("Ficheiro fez upload com sucesso");
-			}
-			
+			//acabar operacao com sucesso
+			out.writeObject("ok");
+			System.out.println("Ficheiro fez upload com sucesso");
+
 		}else {
 			System.err.println("Ocorreu um erro. " + user + " já fez upload deste ficheiro!");
 		}
-		
+
 	}
 
 	private void newConnectionSV(String userIP) throws IOException {

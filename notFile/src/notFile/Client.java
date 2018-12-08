@@ -205,7 +205,6 @@ public class Client {
 		bw.write(usersIP);
 		bw.flush();
 		bw.close();
-
 	}
 
 	private void connectTo(String userIP, String userPort, ObjectInputStream in, ObjectOutputStream out, String user) throws IOException, ClassNotFoundException {
