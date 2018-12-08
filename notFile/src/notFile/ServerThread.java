@@ -64,8 +64,8 @@ public class ServerThread extends Thread {
 
 					in.close();
 					out.close();
-					//socket.close();
-					System.exit(1);
+					socket.close();
+					//System.exit(1);
 
 				}
 				else {
@@ -82,16 +82,15 @@ public class ServerThread extends Thread {
 					}
 
 					out.writeObject("ls"); //LS = login com sucesso
+					pedeOperacoes(in, out, user, pass);
 				}
 
 			} catch(ClassNotFoundException e1) {
 				e1.printStackTrace();
 			}
 
-			pedeOperacoes(in, out, user, pass);
 
-
-		} catch (IOException | ClassNotFoundException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
