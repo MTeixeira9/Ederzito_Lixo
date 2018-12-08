@@ -171,10 +171,10 @@ public class Client {
 		outSoc.writeObject(userIP);
 		outSoc.writeObject(userPort);
 		
-		String resConexao = (String) inSoc.readObject();
+		//String resConexao = (String) inSoc.readObject();
 		
-		if (resConexao.equals("ok"))
-			System.out.println("Conexao feita com sucesso");
+		//if (resConexao.equals("ok"))
+		//	System.out.println("Conexao feita com sucesso");
 		
 		writeUsers(userIP);
 		
