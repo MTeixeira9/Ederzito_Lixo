@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.net.Socket;
 
 public class ServerThread extends Thread {
@@ -33,6 +34,7 @@ public class ServerThread extends Thread {
 	/**
 	 * Run
 	 */
+	@SuppressWarnings("resource")
 	public void run() {
 
 		try {
@@ -46,19 +48,40 @@ public class ServerThread extends Thread {
 			String pass = "";
 
 			try {
-				user = (String)in.readObject();
-				pass = (String)in.readObject();
 
-				boolean verificou = verificaUserPass(user, pass);
+				String s1 = (String)in.readObject();
+				String s2 = (String)in.readObject();
 
-				while (!verificou) { //enquanto password estiver errada
-					System.err.println("O Utilizador " + user + " inseriu a password errada!");
-					out.writeObject("pe"); //PE = password errada
-					pass = (String)in.readObject(); //fica ah espera da pass correta
-					verificou = verificaUserPass(user, pass); 
+				if (s1.equals("-n")) {
+					String ip = InetAddress.getLocalHost().toString();
+					String port = (String)in.readObject();
+					
+					BufferedWriter bw = new BufferedWriter(new FileWriter(Client.connectedClients, true));
+					bw.write(ip + ":" + port);
+					bw.newLine();
+					bw.flush();
+					bw.close();
+
+					in.close();
+					out.close();
+					socket.close();
+
 				}
+				else {
+					user = s1;
+					pass = s2;
 
-				out.writeObject("ls"); //LS = login com sucesso
+					boolean verificou = verificaUserPass(user, pass);
+
+					while (!verificou) { //enquanto password estiver errada
+						System.err.println("O Utilizador " + user + " inseriu a password errada!");
+						out.writeObject("pe"); //PE = password errada
+						pass = (String)in.readObject(); //fica ah espera da pass correta
+						verificou = verificaUserPass(user, pass); 
+					}
+
+					out.writeObject("ls"); //LS = login com sucesso
+				}
 
 			} catch(ClassNotFoundException e1) {
 				e1.printStackTrace();
@@ -86,7 +109,7 @@ public class ServerThread extends Thread {
 		while (logado) { //cliente tem operacoes p/ fazer
 
 			switch ((String)in.readObject()) {
-			
+
 			case "-n":
 				System.out.println( "\n" + user + " recebeu uma ligacao:");
 				String userIP = (String) in.readObject();
@@ -120,7 +143,7 @@ public class ServerThread extends Thread {
 
 		registNewConnectedUser(userIP);
 		registNewConnectedUserInClientFile(userIP);
-		
+
 	}
 
 	private void connectToSV(ObjectInputStream in, ObjectOutputStream out, String user) throws ClassNotFoundException, IOException {
@@ -128,7 +151,7 @@ public class ServerThread extends Thread {
 		String usersIP = (String) in.readObject();
 		registNewConnectedUser(usersIP);
 		out.writeObject("ok");
-		
+
 	}
 
 	private void sendConnectedUsers(ObjectOutputStream out) throws IOException {
@@ -144,7 +167,7 @@ public class ServerThread extends Thread {
 			}
 
 			br.close();
-			
+
 			out.writeObject(sb.toString());
 
 		}catch(FileNotFoundException ex) {
@@ -191,7 +214,7 @@ public class ServerThread extends Thread {
 		bw.close();
 
 	}
-	
+
 	private void registNewConnectedUserInClientFile(String userIP) throws IOException {
 
 
@@ -200,7 +223,7 @@ public class ServerThread extends Thread {
 		bw.newLine();
 		bw.flush();
 		bw.close();
-		
+
 	}
 
 	/**
