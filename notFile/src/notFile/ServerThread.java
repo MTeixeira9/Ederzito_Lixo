@@ -1,16 +1,17 @@
 package notFile;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
-import java.net.InetAddress;
 import java.net.Socket;
 
 public class ServerThread extends Thread {
@@ -117,11 +118,16 @@ public class ServerThread extends Thread {
 		while (logado) { //cliente tem operacoes p/ fazer
 
 			switch ((String)in.readObject()) {
+			
+			case "-p":
+				System.out.println( "\n" + user + " quer fazer upload de um ficheiro:");
+				String userIP = (String) in.readObject();
+				newConnectionSV(userIP);
+				break;
 
 			case "-n":
 				System.out.println( "\n" + user + " recebeu uma ligacao:");
-				String userIP = (String) in.readObject();
-				newConnectionSV(userIP);
+				uploadFileSV(in, out, user);
 				break;
 
 			case "-c":
@@ -145,6 +151,49 @@ public class ServerThread extends Thread {
 		out.close();
 		socket.close();
 
+	}
+
+	private void uploadFileSV(ObjectInputStream in, ObjectOutputStream out, String user) throws ClassNotFoundException, IOException {
+
+		String res = (String) in.readObject();
+		
+		if (res.equals("existe")) {
+			
+			/*
+			 * Receber ficheiro
+			 */
+			int tamanhoFile = in.readInt(); //recebe tamanho do ficheiro
+			String nomeFile = (String) in.readObject(); //recebe nome ficheiro
+			String pathF = REP_FINAL + user + "/" + nomeFile;
+
+			byte[] myByteArray = new byte[tamanhoFile];
+			FileOutputStream fos = new FileOutputStream(REP_FINAL + user + "/" + nomeFile);
+			@SuppressWarnings("resource")
+			BufferedOutputStream bos = new BufferedOutputStream(fos);
+			int bytesRead = in.read(myByteArray,0,myByteArray.length);
+			int current = bytesRead;
+			
+			/*
+			 * Resultado da operacao + criacao de ficheiro
+			 */
+			if (new File(pathF).exists()) {//envia erro pq ficheiro jah existe
+				out.writeObject("err");
+
+				System.err.println("Ficheiro jah existe!");
+			}else { 
+				//criar o ficheiro
+				bos.write(myByteArray, 0, current);
+				bos.flush();
+
+				//acabar operacao com sucesso
+				out.writeObject("ok");
+				System.out.println("Ficheiro fez upload com sucesso");
+			}
+			
+		}else {
+			System.err.println("Ocorreu um erro. " + user + " já fez upload deste ficheiro!");
+		}
+		
 	}
 
 	private void newConnectionSV(String userIP) throws IOException {

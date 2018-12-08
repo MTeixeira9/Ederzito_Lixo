@@ -1,7 +1,9 @@
 package notFile;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -13,7 +15,7 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Client {
-	
+
 	public static final String REP_FINAL = "RepositorioLocal/";
 	public static File connectedClients;
 	public static List<Socket> conexoes;
@@ -97,14 +99,14 @@ public class Client {
 	private void insereOperacoes(ObjectInputStream in, ObjectOutputStream out, Scanner sc, Socket socket, String user) throws IOException, ClassNotFoundException {
 
 		boolean logado = true;
-		
+
 		//recebe lista de clientes conetados
 		receiveConnectedClients(in, out);
 
 		while (logado) { //cliente tem operacoes p/ fazer
 
 			System.out.println("\n Operacoes disponiveis: ");
-			System.out.println("|-c <userIP> <userPort>|	       |-p <file>|	                 |-s <query>|");
+			System.out.println("|-c <userIP> <userPort>|	       |-p <file>|	       |-s <query>|");
 			System.out.println("|-quit| \n");
 			System.out.print("Insira uma nova operacao: ");
 
@@ -124,6 +126,17 @@ public class Client {
 				connectTo(comandos[1], comandos[2], in, out, user);
 				break;	
 
+			case "-p":
+
+				if (comandos.length != 2) {
+					System.err.println("Nao inseriu os argumentos corretamente!");
+					break;
+				}
+
+				out.writeObject(comandos[0]);
+				uploadFile(comandos[1], in, out, user);
+				break;
+
 			case "-quit":
 				out.writeObject(comandos[0]);
 				System.out.println(user + " fez log out.");
@@ -140,14 +153,49 @@ public class Client {
 		out.close();
 		sc.close();
 		socket.close();
-		
+
+	}
+
+	private void uploadFile(String f, ObjectInputStream in, ObjectOutputStream out, String user) throws ClassNotFoundException, IOException {
+
+		File file = new File(f);
+
+		if (!file.exists()) { //se a foto nao existe
+			out.writeObject("nExiste");
+			System.err.println("O ficheiro que inseriu nao existe!");
+		}
+		else {
+			out.writeObject("existe");
+
+			byte [] sizeFile  = new byte [(int)file.length()];
+
+			FileInputStream fis = new FileInputStream(file);
+			BufferedInputStream bis = new BufferedInputStream(fis);
+
+			bis.read(sizeFile,0,sizeFile.length);
+			bis.close();
+			//System.out.println("Sending " + FILE_TO_SEND + "(" + mybytearray.length + " bytes)");
+			out.writeInt(sizeFile.length); //envia tamanho do ficheiro
+			out.writeObject(f); //envia nome do file
+			out.write(sizeFile,0,sizeFile.length); //envia ficheiro byte a byte
+			out.flush();
+
+			//Recebe se correu bem ou nao
+			String feed = (String) in.readObject();
+			
+			if(feed.equals("err")) {
+				System.err.println("Ficheiro de " + user + " jah existe!");
+			}else {
+				System.out.println("Ficheiro de " + user + " fez upload com sucesso");
+			}
+		}
 	}
 
 	private void receiveConnectedClients(ObjectInputStream in, ObjectOutputStream out) throws IOException, ClassNotFoundException {
-		
+
 		String users = (String) in.readObject();		
 		writeUsers(users);
-		
+
 	}
 
 	private void writeUsers(String usersIP) throws IOException {
@@ -155,32 +203,19 @@ public class Client {
 		bw.write(usersIP);
 		bw.flush();
 		bw.close();
-		
+
 	}
 
 	private void connectTo(String userIP, String userPort, ObjectInputStream in, ObjectOutputStream out, String user) throws IOException, ClassNotFoundException {
 
 		Socket socket = new Socket(userIP, Integer.parseInt(userPort)); //ligacao ao servidor
-		
 		conexoes.add(socket);
 
-		ObjectOutputStream outSoc = new ObjectOutputStream(socket.getOutputStream());
-		ObjectInputStream inSoc = new ObjectInputStream(socket.getInputStream());
-		
-		outSoc.writeObject("-n");
-		outSoc.writeObject(userIP);
-		//outSoc.writeObject(userPort);
-		
-		//String resConexao = (String) inSoc.readObject();
-		
-		//if (resConexao.equals("ok"))
-		//	System.out.println("Conexao feita com sucesso");
-		
 		writeUsers(userIP);
-		
+
 		out.writeObject(userIP);
 		String result = (String) in.readObject();
-		
+
 		if (result.equals("ok"))
 			System.out.println("Servidor de " + user + " adicionou a nova conexao");
 	}
@@ -214,7 +249,7 @@ public class Client {
 			System.out.println("Repositorio Local de " + userLocal + " criado.");
 			repUserLocal.mkdirs(); // Cria diretoria
 		}
-		
+
 		//cria ficheiro conClients.txt sempre que o cliente se liga
 		connectedClients = new File(REP_FINAL + "conClients.txt");
 		connectedClients.createNewFile();
