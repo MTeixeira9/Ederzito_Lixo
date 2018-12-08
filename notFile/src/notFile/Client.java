@@ -115,7 +115,7 @@ public class Client {
 
 			case "-c":
 
-				if (comandos.length != 2) {
+				if (comandos.length != 3) {
 					System.err.println("Nao inseriu os argumentos corretamente!");
 					break;
 				}
