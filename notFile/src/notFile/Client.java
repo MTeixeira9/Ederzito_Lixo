@@ -169,6 +169,7 @@ public class Client {
 		
 		outSoc.writeObject("-n");
 		outSoc.writeObject(userIP);
+		outSoc.writeObject(userPort);
 		
 		String resConexao = (String) inSoc.readObject();
 		
