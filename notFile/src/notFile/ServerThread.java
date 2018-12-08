@@ -53,7 +53,7 @@ public class ServerThread extends Thread {
 				String s2 = (String)in.readObject();
 
 				if (s1.equals("-n")) {
-					String ip = InetAddress.getLocalHost().toString();
+					String ip = InetAddress.getLocalHost().getHostAddress();
 					String port = (String)in.readObject();
 					
 					BufferedWriter bw = new BufferedWriter(new FileWriter(Client.REP_FINAL + "conClients.txt", true));
