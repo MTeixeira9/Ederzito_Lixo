@@ -14,7 +14,7 @@ import java.util.Scanner;
 
 public class Client {
 	
-	private static final String REP_FINAL = "RepositorioLocal/";
+	public static final String REP_FINAL = "RepositorioLocal/";
 	public static File connectedClients;
 	private List<Socket> conexoes;
 

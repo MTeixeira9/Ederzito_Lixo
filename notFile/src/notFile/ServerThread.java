@@ -56,7 +56,7 @@ public class ServerThread extends Thread {
 					String ip = InetAddress.getLocalHost().toString();
 					String port = (String)in.readObject();
 					
-					BufferedWriter bw = new BufferedWriter(new FileWriter(Client.connectedClients, true));
+					BufferedWriter bw = new BufferedWriter(new FileWriter(Client.REP_FINAL + "conClients.txt", true));
 					bw.write(ip + ":" + port);
 					bw.newLine();
 					bw.flush();
