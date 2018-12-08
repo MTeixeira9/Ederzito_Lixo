@@ -18,6 +18,7 @@ public class ServerThread extends Thread {
 	private Socket socket;
 	private static final String REP_FINAL = "notFileRepositorio/";
 	private String ipUser;
+	//private String portUser;
 	private File users;
 	private File connectedClients;
 
@@ -29,6 +30,7 @@ public class ServerThread extends Thread {
 		socket = inSoc;
 		//obter IP do cliente que se ligou
 		ipUser = inSoc.getRemoteSocketAddress().toString();
+		//portUser = "" + inSoc.getPort();
 	}
 
 	/**
@@ -53,11 +55,17 @@ public class ServerThread extends Thread {
 				String s2 = (String)in.readObject();
 
 				if (s1.equals("-n")) {
-					String ip = InetAddress.getLocalHost().getHostAddress();
+					//String ip = InetAddress.getLocalHost().getHostAddress();
 					String port = (String)in.readObject();
 					
 					BufferedWriter bw = new BufferedWriter(new FileWriter(Client.REP_FINAL + "conClients.txt", true));
-					bw.write(ip + ":" + port);
+					bw.write(ipUser + ":" + port);
+					bw.newLine();
+					bw.flush();
+					bw.close();
+					
+					bw = new BufferedWriter(new FileWriter(connectedClients, true));
+					bw.write(ipUser + ":" + port);
 					bw.newLine();
 					bw.flush();
 					bw.close();
