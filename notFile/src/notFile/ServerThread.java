@@ -64,7 +64,8 @@ public class ServerThread extends Thread {
 
 					in.close();
 					out.close();
-					socket.close();
+					//socket.close();
+					System.exit(1);
 
 				}
 				else {
