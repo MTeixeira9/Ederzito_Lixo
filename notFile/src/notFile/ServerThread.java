@@ -78,7 +78,7 @@ public class ServerThread extends Thread {
 		boolean logado = true;
 
 		//regista o cliente como connetado
-		registNewConnectedUser(user, ipUser);
+		registNewConnectedUser(ipUser);
 
 		//envia ao cliente a lista de atuais clientes conetados
 		sendConnectedUsers(out);
@@ -87,9 +87,9 @@ public class ServerThread extends Thread {
 
 			switch ((String)in.readObject()) {
 
-			case "-a":
-				System.out.println( "\n" + user + " quer adicionar uma fotografia:");
-				//adicionaFotosSV(in, out, user);
+			case "-c":
+				System.out.println( "\n" + user + " quer fazer uma ligacao:");
+				connectToSV(in, out, user);
 				break;
 
 			case "-quit":
@@ -108,6 +108,14 @@ public class ServerThread extends Thread {
 		out.close();
 		socket.close();
 
+	}
+
+	private void connectToSV(ObjectInputStream in, ObjectOutputStream out, String user) throws ClassNotFoundException, IOException {
+
+		String usersIP = (String) in.readObject();
+		registNewConnectedUser(usersIP);
+		out.writeObject("ok");
+		
 	}
 
 	private void sendConnectedUsers(ObjectOutputStream out) throws IOException {
@@ -161,10 +169,10 @@ public class ServerThread extends Thread {
 
 	}
 
-	private void registNewConnectedUser(String user, String ipUser) throws IOException {
+	private void registNewConnectedUser(String ipUser) throws IOException {
 
 		BufferedWriter bw = new BufferedWriter(new FileWriter(connectedClients, true));
-		bw.write(user + " - " + ipUser);
+		bw.write(ipUser);
 		bw.newLine();
 		bw.flush();
 		bw.close();

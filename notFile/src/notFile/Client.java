@@ -95,14 +95,12 @@ public class Client {
 		boolean logado = true;
 		
 		//recebe lista de clientes conetados
-		receiveConnectedClients(in);
+		receiveConnectedClients(in, out);
 
 		while (logado) { //cliente tem operacoes p/ fazer
 
 			System.out.println("\n Operacoes disponiveis: ");
-			//System.out.println("|-a <photos>|	       |-l <userId>|	                 |-i <userId> <photo>|");
-			//System.out.println("|-g <userId>|	       |-c <comment> <userId> <photo>|   |-L <userId> <photo>|");
-			//System.out.println("|-D <userId> <photo>|  |-f <followUserIds>|              |-r <followUserIds> |"); 
+			System.out.println("|-c <userIP>|	       |-p <file>|	                 |-s <query>|");
 			System.out.println("|-quit| \n");
 			System.out.print("Insira uma nova operacao: ");
 
@@ -111,7 +109,7 @@ public class Client {
 
 			switch (comandos[0]) {
 
-			case "-a":
+			case "-c":
 
 				if (comandos.length != 2) {
 					System.err.println("Nao inseriu os argumentos corretamente!");
@@ -119,7 +117,7 @@ public class Client {
 				}
 
 				out.writeObject(comandos[0]);
-				//adicionaFotos(comandos[1], out, in);
+				connectTo(comandos[1], in, out);
 				break;	
 
 			case "-quit":
@@ -141,15 +139,30 @@ public class Client {
 		
 	}
 
-	private void receiveConnectedClients(ObjectInputStream in) throws IOException, ClassNotFoundException {
+	private void receiveConnectedClients(ObjectInputStream in, ObjectOutputStream out) throws IOException, ClassNotFoundException {
 		
-		String users = (String) in.readObject();
+		String users = (String) in.readObject();		
+		writeUsers(users);
+		
+	}
 
+	private void writeUsers(String usersIP) throws IOException {
 		BufferedWriter bw = new BufferedWriter(new FileWriter(connectedClients, true));
-		bw.write(users);
+		bw.write(usersIP);
 		bw.flush();
 		bw.close();
 		
+	}
+
+	private void connectTo(String usersIP, ObjectInputStream in, ObjectOutputStream out) throws IOException, ClassNotFoundException {
+
+		writeUsers(usersIP);
+		
+		out.writeObject(usersIP);
+		String result = (String) in.readObject();
+		
+		if (result.equals("ok"))
+			System.out.println("Conexao feita com sucesso");
 	}
 
 	/**
