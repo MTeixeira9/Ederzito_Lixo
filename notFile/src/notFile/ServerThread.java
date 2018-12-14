@@ -223,7 +223,7 @@ public class ServerThread extends Thread {
 			 * TEMA
 			 */
 			String tema = (String) in.readObject(); //recebe tema do ficheiro
-			File temaF = new File (rep + tema);
+			File temaF = new File (rep + "/" + tema);
 			if (!temaF.exists())
 				temaF.mkdirs();
 				
