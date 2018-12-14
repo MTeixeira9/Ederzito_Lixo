@@ -164,8 +164,16 @@ public class ServerThread extends Thread {
 			 * Receber ficheiro
 			 */
 			int tamanhoFile = in.readInt(); //recebe tamanho do ficheiro
+			/**
+			 * TEMAAA
+			 */
+			String tema = (String) in.readObject(); //recebe tema do ficheiro
+			File temaF = new File (rep + tema);
+			if (!temaF.exists())
+				temaF.mkdirs();
+				
 			String nome = (String) in.readObject(); //recebe nome do ficheiro
-			String pathF = REP_FINAL + user + nome;
+			String pathF = temaF + "/" + nome;
 
 			byte[] myByteArray = new byte[tamanhoFile];
 			FileOutputStream fos = new FileOutputStream(pathF);

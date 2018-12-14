@@ -106,7 +106,7 @@ public class Client {
 		while (logado) { //cliente tem operacoes p/ fazer
 
 			System.out.println("\n Operacoes disponiveis: ");
-			System.out.println("|-c <userIP> <userPort>|	       |-p <file>|	       |-s <query>|");
+			System.out.println("|-c <userIP> <userPort>|     |-p <theme> <file>|     |-s <query>|");
 			System.out.println("|-quit| \n");
 			System.out.print("Insira uma nova operacao: ");
 
@@ -128,13 +128,13 @@ public class Client {
 
 			case "-p":
 
-				if (comandos.length != 2) {
+				if (comandos.length != 3) {
 					System.err.println("Nao inseriu os argumentos corretamente!");
 					break;
 				}
 
 				out.writeObject(comandos[0]);
-				uploadFile(comandos[1], in, out, user);
+				uploadFile(comandos[1], comandos[2], in, out, user);
 				break;
 
 			case "-quit":
@@ -156,7 +156,7 @@ public class Client {
 
 	}
 
-	private void uploadFile(String f, ObjectInputStream in, ObjectOutputStream out, String user) throws ClassNotFoundException, IOException {
+	private void uploadFile(String t, String f, ObjectInputStream in, ObjectOutputStream out, String user) throws ClassNotFoundException, IOException {
 
 		File file = new File(f);
 
@@ -176,7 +176,7 @@ public class Client {
 
 			bis.read(sizeFile,0,sizeFile.length);
 			bis.close();
-			//System.out.println("Sending " + FILE_TO_SEND + "(" + mybytearray.length + " bytes)");
+			out.writeObject(t); //envia tema
 			out.writeInt(sizeFile.length); //envia tamanho do ficheiro
 			out.writeObject(nome); //enviar nome ficheiro
 			out.write(sizeFile,0,sizeFile.length); //envia ficheiro byte a byte
