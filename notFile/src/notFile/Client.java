@@ -179,7 +179,6 @@ public class Client {
 			
 			outS.writeObject("-s");
 			outS.writeObject(tema);
-			outS.writeObject(soc);
 			
 			String res = (String) inS.readObject();
 			

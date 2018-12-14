@@ -125,7 +125,7 @@ public class ServerThread extends Thread {
 			case "-s":
 				System.out.println( "\n" + user + " recebeu uma ligacao:");
 				String tema = (String) in.readObject();
-				subscribeSV(tema, in);
+				subscribeSV(tema, out, in);
 				break;
 			
 			case "-n":
@@ -162,20 +162,17 @@ public class ServerThread extends Thread {
 
 	}
 
-	private void subscribeSV(String tema, ObjectInputStream in) throws ClassNotFoundException, IOException {
+	private void subscribeSV(String tema, ObjectOutputStream out, ObjectInputStream in) throws ClassNotFoundException, IOException {
 
 		File ficheirosTema = new File(rep + "/" + tema);
 		File[] ficheiros = ficheirosTema.listFiles();
 		int nFicheiros = ficheiros.length;
-		Socket s = (Socket) in.readObject();
-		ObjectOutputStream outS = new ObjectOutputStream(s.getOutputStream());			
-		ObjectInputStream inS = new ObjectInputStream(s.getInputStream());
 		
 		if(nFicheiros == 0){
-			outS.writeObject("nExiste");
+			out.writeObject("nExiste");
 		}
 		else {
-			outS.writeObject("existe");
+			out.writeObject("existe");
 			
 			for (File file : ficheiros) {
 				/*
@@ -191,13 +188,13 @@ public class ServerThread extends Thread {
 
 				bis.read(sizeFile,0,sizeFile.length);
 				bis.close();
-				outS.writeInt(sizeFile.length); //envia tamanho do ficheiro
-				outS.writeObject(nome); //enviar nome ficheiro
-				outS.write(sizeFile,0,sizeFile.length); //envia ficheiro byte a byte
-				outS.flush();
+				out.writeInt(sizeFile.length); //envia tamanho do ficheiro
+				out.writeObject(nome); //enviar nome ficheiro
+				out.write(sizeFile,0,sizeFile.length); //envia ficheiro byte a byte
+				out.flush();
 
 				//Recebe se correu bem ou nao
-				String feed = (String) inS.readObject();
+				String feed = (String) in.readObject();
 				
 				if(feed.equals("err")) {
 					System.err.println("Ocorreu um erro a enviar ficheiro!");
