@@ -238,9 +238,9 @@ public class Client {
 			BufferedInputStream bis = new BufferedInputStream(fis);
 
 			bis.read(sizeFile,0,sizeFile.length);
-			bis.close();
-			out.writeObject(t); //envia tema
+			bis.close();			
 			out.writeInt(sizeFile.length); //envia tamanho do ficheiro
+			out.writeObject(t); //envia tema
 			out.writeObject(nome); //enviar nome ficheiro
 			out.write(sizeFile,0,sizeFile.length); //envia ficheiro byte a byte
 			out.flush();
