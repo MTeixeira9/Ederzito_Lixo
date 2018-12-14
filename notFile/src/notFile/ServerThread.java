@@ -1,9 +1,11 @@
 package notFile;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -119,16 +121,22 @@ public class ServerThread extends Thread {
 		while (logado) { //cliente tem operacoes p/ fazer
 
 			switch ((String)in.readObject()) {
-
-			case "-p":
-				System.out.println( "\n" + user + " quer fazer upload de um ficheiro:");
-				uploadFileSV(in, out, user);
+			
+			case "-s":
+				System.out.println( "\n" + user + " recebeu uma ligacao:");
+				String tema = (String) in.readObject();
+				subscribeSV(tema, in);
 				break;
-
+			
 			case "-n":
 				System.out.println( "\n" + user + " recebeu uma ligacao:");
 				String userIP = (String) in.readObject();
 				newConnectionSV(userIP);
+				break;
+
+			case "-p":
+				System.out.println( "\n" + user + " quer fazer upload de um ficheiro:");
+				uploadFileSV(in, out, user);
 				break;
 
 			case "-c":
@@ -154,6 +162,53 @@ public class ServerThread extends Thread {
 
 	}
 
+	private void subscribeSV(String tema, ObjectInputStream in) throws ClassNotFoundException, IOException {
+
+		File ficheirosTema = new File(rep + "/" + tema);
+		File[] ficheiros = ficheirosTema.listFiles();
+		int nFicheiros = ficheiros.length;
+		Socket s = (Socket) in.readObject();
+		ObjectOutputStream outS = new ObjectOutputStream(s.getOutputStream());			
+		ObjectInputStream inS = new ObjectInputStream(s.getInputStream());
+		
+		if(nFicheiros == 0){
+			outS.writeObject("nExiste");
+		}
+		else {
+			outS.writeObject("existe");
+			
+			for (File file : ficheiros) {
+				/*
+				 *ENVIAR FICHEIRO 
+				 */			
+				String f = file.getAbsolutePath();
+				String nome = f.substring(f.lastIndexOf("/")); //obter nome ficheiro
+
+				byte [] sizeFile  = new byte [(int)file.length()];
+
+				FileInputStream fis = new FileInputStream(file);
+				BufferedInputStream bis = new BufferedInputStream(fis);
+
+				bis.read(sizeFile,0,sizeFile.length);
+				bis.close();
+				outS.writeInt(sizeFile.length); //envia tamanho do ficheiro
+				outS.writeObject(nome); //enviar nome ficheiro
+				outS.write(sizeFile,0,sizeFile.length); //envia ficheiro byte a byte
+				outS.flush();
+
+				//Recebe se correu bem ou nao
+				String feed = (String) inS.readObject();
+				
+				if(feed.equals("err")) {
+					System.err.println("Ocorreu um erro a enviar ficheiro!");
+				}else {
+					System.out.println("Ficheiro enviado com sucesso");
+				}
+			}
+		}
+		
+	}
+
 	private void uploadFileSV(ObjectInputStream in, ObjectOutputStream out, String user) throws ClassNotFoundException, IOException {
 
 		String res = (String) in.readObject();
@@ -164,8 +219,8 @@ public class ServerThread extends Thread {
 			 * Receber ficheiro
 			 */
 			int tamanhoFile = in.readInt(); //recebe tamanho do ficheiro
-			/**
-			 * TEMAAA
+			/*
+			 * TEMA
 			 */
 			String tema = (String) in.readObject(); //recebe tema do ficheiro
 			File temaF = new File (rep + tema);

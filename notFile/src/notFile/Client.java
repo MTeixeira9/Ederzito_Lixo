@@ -1,9 +1,11 @@
 package notFile;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -106,7 +108,7 @@ public class Client {
 		while (logado) { //cliente tem operacoes p/ fazer
 
 			System.out.println("\n Operacoes disponiveis: ");
-			System.out.println("|-c <userIP> <userPort>|     |-p <theme> <file>|     |-s <query>|");
+			System.out.println("|-c <userIP> <userPort>|     |-p <theme> <file>|     |-s <theme>|");
 			System.out.println("|-quit| \n");
 			System.out.print("Insira uma nova operacao: ");
 
@@ -136,6 +138,17 @@ public class Client {
 				out.writeObject(comandos[0]);
 				uploadFile(comandos[1], comandos[2], in, out, user);
 				break;
+				
+			case "-s":
+
+				if (comandos.length != 2) {
+					System.err.println("Nao inseriu os argumentos corretamente!");
+					break;
+				}
+
+				out.writeObject(comandos[0]);
+				subscribe(comandos[1], in, out, socket, user);
+				break;
 
 			case "-quit":
 				out.writeObject(comandos[0]);
@@ -156,17 +169,67 @@ public class Client {
 
 	}
 
+	private void subscribe(String tema, ObjectInputStream in, ObjectOutputStream out, Socket soc, String user) throws IOException, ClassNotFoundException {
+
+		int count = 0;
+		
+		for (Socket socket : conexoes) {
+			ObjectOutputStream outS = new ObjectOutputStream(socket.getOutputStream());			
+			ObjectInputStream inS = new ObjectInputStream(socket.getInputStream());
+			
+			outS.writeObject("-s");
+			outS.writeObject(tema);
+			outS.writeObject(soc);
+			
+			String res = (String) inS.readObject();
+			
+			if (res.equals("existe")) {
+				count++;
+				
+				/*
+				 * Receber ficheiro
+				 */
+				int tamanhoFile = in.readInt(); //recebe tamanho do ficheiro
+				String nome = (String) in.readObject(); //recebe nome do ficheiro
+				String pathF = REP_FINAL + user + "/" + nome;
+
+				byte[] myByteArray = new byte[tamanhoFile];
+				FileOutputStream fos = new FileOutputStream(pathF);
+				@SuppressWarnings("resource")
+				BufferedOutputStream bos = new BufferedOutputStream(fos);
+				int bytesRead = in.read(myByteArray,0,myByteArray.length);
+				int current = bytesRead;
+
+				bos.write(myByteArray, 0, current);
+				bos.flush();
+
+				//acabar operacao com sucesso
+				out.writeObject("ok");
+				System.out.println("Ficheiro recebido com sucesso");
+				
+				
+			}
+		}
+		
+		if (count == 0)
+				System.out.println("Não existem ficheiros sobre o tema que subscreveu!");
+		
+	}
+
 	private void uploadFile(String t, String f, ObjectInputStream in, ObjectOutputStream out, String user) throws ClassNotFoundException, IOException {
 
 		File file = new File(f);
 
-		if (!file.exists()) { //se a foto nao existe
+		if (!file.exists()) { //se o ficheiro nao existe
 			out.writeObject("nExiste");
 			System.err.println("O ficheiro que inseriu nao existe!");
 		}
 		else {
 			out.writeObject("existe");
 			
+			/*
+			 *ENVIAR FICHEIRO 
+			 */			
 			String nome = f.substring(f.lastIndexOf("/")); //obter nome ficheiro
 
 			byte [] sizeFile  = new byte [(int)file.length()];
