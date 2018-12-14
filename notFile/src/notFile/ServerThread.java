@@ -22,6 +22,7 @@ public class ServerThread extends Thread {
 	//private String portUser;
 	private File users;
 	private File connectedClients;
+	private File rep;
 
 	/**
 	 * Construtor de ServerThread
@@ -310,12 +311,7 @@ public class ServerThread extends Thread {
 		bw.write(user + ":" + pass);
 		bw.newLine();
 		bw.flush();
-		bw.close();
-
-		File rep = new File(REP_FINAL + user);
-		rep.mkdir();
-
-		System.out.println("O repositorio do " + user + " foi criado.");			
+		bw.close();		
 		System.out.println("Registo feito com sucesso! \n");
 
 		return true;
@@ -342,10 +338,14 @@ public class ServerThread extends Thread {
 
 			if(!users.exists())
 				users.createNewFile();
+			
+			//repositorio de ficheiros
+			rep = new File(REP_FINAL + "Ficheiros");
+			if(!rep.exists())
+				rep.mkdir();
 
 			//cria ficheiro users.txt
 			connectedClients = new File(REP_FINAL + "conClients.txt");
-
 			if(!connectedClients.exists())
 				connectedClients.createNewFile();
 
