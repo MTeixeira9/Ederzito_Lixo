@@ -23,7 +23,8 @@ public class Client {
 
 	public static final String REP_FINAL = "RepositorioLocal/";
 	public static File connectedClients;
-	public static Map<String, Integer> conexoes;
+	private static Map<String, Integer> conexoes;
+	public static List<String> subscricoes;
 
 	/**
 	 * Main do Cliente
@@ -59,6 +60,7 @@ public class Client {
 		ObjectOutputStream out = null;
 		ObjectInputStream in = null;
 		conexoes = new HashMap<String, Integer>();
+		subscricoes = new ArrayList<>();
 		Scanner sc = new Scanner(System.in);
 
 		if (args.length == 3) { 
@@ -150,7 +152,7 @@ public class Client {
 				}
 
 				//out.writeObject(comandos[0]);
-				subscribe(comandos[1], user, in, out);
+				subscribe(comandos[1]);
 				break;
 
 			case "-quit":
@@ -173,59 +175,9 @@ public class Client {
 	}
 
 	@SuppressWarnings("resource")
-	private void subscribe(String tema, String user, ObjectInputStream in, ObjectOutputStream out) throws IOException, ClassNotFoundException {
+	private void subscribe(String tema) throws IOException, ClassNotFoundException {
 
-		int count = 0;
-		
-		for (Map.Entry<String, Integer> entry : conexoes.entrySet()) {
-			Socket socket = new Socket(entry.getKey(), entry.getValue());
-			ServerThread newServerThread = new ServerThread(socket);
-			newServerThread.start();
-			AppendingObjectOutputStream outS = new AppendingObjectOutputStream(socket.getOutputStream());
-			in.close();
-			in = new ObjectInputStream(socket.getInputStream());
-
-			outS.writeObject("-s");
-			outS.writeObject(tema);
-
-			String res = (String) in.readObject();
-
-			if (res.equals("existe")) {
-				count++;
-
-				int nFicheiros = in.readInt();
-
-				for (int i = 0; i < nFicheiros; i++) {
-					/*
-					 * Receber ficheiro
-					 */
-					int tamanhoFile = in.readInt(); //recebe tamanho do ficheiro
-					String nome = (String) in.readObject(); //recebe nome do ficheiro
-					String pathF = REP_FINAL + user + "/" + nome;
-
-					byte[] myByteArray = new byte[tamanhoFile];
-					FileOutputStream fos = new FileOutputStream(pathF);
-					@SuppressWarnings("resource")
-					BufferedOutputStream bos = new BufferedOutputStream(fos);
-					int bytesRead = in.read(myByteArray,0,myByteArray.length);
-					int current = bytesRead;
-
-					bos.write(myByteArray, 0, current);
-					bos.flush();
-
-					//acabar operacao com sucesso
-					outS.writeObject("ok");
-					System.out.println("Ficheiro recebido com sucesso");
-
-					in.close();
-					outS.close();
-					socket.close();
-				}
-			}
-		}
-
-		if (count == 0)
-			System.out.println("Não existem ficheiros sobre o tema que subscreveu!");
+		subscricoes.add(tema);
 
 	}
 
@@ -267,6 +219,42 @@ public class Client {
 				System.out.println("Ficheiro de " + user + " fez upload com sucesso");
 			}
 		}
+
+		/**
+		 * FLOODING
+		 */
+		int count = 0;
+
+		for (Map.Entry<String, Integer> entry : conexoes.entrySet()) {
+			Socket socket = new Socket(entry.getKey(), entry.getValue());
+			ServerThread newServerThread = new ServerThread(socket);
+			newServerThread.start();
+			AppendingObjectOutputStream outS = new AppendingObjectOutputStream(socket.getOutputStream());
+			//ObjectInputStream inS = new ObjectInputStream(socket.getInputStream());
+
+			outS.writeObject("-f");
+			outS.writeObject(t);
+	
+			/*
+			 *ENVIAR FICHEIRO 
+			 */			
+			String nome = f.substring(f.lastIndexOf("/")); //obter nome ficheiro
+
+			byte [] sizeFile  = new byte [(int)file.length()];
+
+			FileInputStream fis = new FileInputStream(file);
+			BufferedInputStream bis = new BufferedInputStream(fis);
+
+			bis.read(sizeFile,0,sizeFile.length);
+			bis.close();			
+			out.writeInt(sizeFile.length); //envia tamanho do ficheiro
+			out.writeObject(nome); //enviar nome ficheiro
+			out.write(sizeFile,0,sizeFile.length); //envia ficheiro byte a byte
+
+			outS.close();
+			socket.close();
+		}
+
 	}
 
 	private void receiveConnectedClients(ObjectInputStream in, ObjectOutputStream out) throws IOException, ClassNotFoundException {

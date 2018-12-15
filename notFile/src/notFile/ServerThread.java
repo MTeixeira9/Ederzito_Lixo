@@ -64,8 +64,8 @@ public class ServerThread extends Thread {
 				
 				System.out.println(s1 + "  ----  " + s2);
 
-				if (s1.equals("-s")){
-					subscribeSV(s2, out, in);
+				if (s1.equals("-f")){
+					receiveFileSV(s2, in);
 				}
 				else {
 					
@@ -144,55 +144,38 @@ public class ServerThread extends Thread {
 
 	}
 
-	private void subscribeSV(String tema, ObjectOutputStream out, ObjectInputStream in) throws ClassNotFoundException, IOException {
+	private void receiveFileSV(String tema, ObjectInputStream in) throws ClassNotFoundException, IOException {
 
-		File ficheirosTema = new File(rep + "/" + tema);
-		File[] ficheiros = ficheirosTema.listFiles();
-		int nFicheiros = ficheiros.length;
+		/*
+		 * TEMA
+		 */
+		File temaF = new File (rep + "/" + tema);
+		if (!temaF.exists())
+			temaF.mkdirs();
 
-		if(nFicheiros == 0){
-			out.writeObject("nExiste");
+		/*
+		 * Receber ficheiro
+		 */		
+		int tamanhoFile = in.readInt(); //recebe tamanho do ficheiro
+		String nome = (String) in.readObject(); //recebe nome do ficheiro
+		String pathF = temaF + "/" + nome;
+
+		byte[] myByteArray = new byte[tamanhoFile];
+		FileOutputStream fos = new FileOutputStream(pathF);
+		@SuppressWarnings("resource")
+		BufferedOutputStream bos = new BufferedOutputStream(fos);
+		int bytesRead = in.read(myByteArray,0,myByteArray.length);
+		int current = bytesRead;
+
+		bos.write(myByteArray, 0, current);
+		bos.flush();
+		bos.close();
+		
+		if(!Client.subscricoes.contains(tema)) {
+			File file = new File(pathF);
+			file.delete();
 		}
-		else {
-			out.writeObject("existe");
-			out.writeInt(nFicheiros);
-
-			for (File file : ficheiros) {
-				/*
-				 *ENVIAR FICHEIRO 
-				 */			
-				String f = file.getAbsolutePath();
-				String nome = f.substring(f.lastIndexOf("/")); //obter nome ficheiro
-
-				byte [] sizeFile  = new byte [(int)file.length()];
-
-				FileInputStream fis = new FileInputStream(file);
-				BufferedInputStream bis = new BufferedInputStream(fis);
-
-				bis.read(sizeFile,0,sizeFile.length);
-				bis.close();
-				out.writeInt(sizeFile.length); //envia tamanho do ficheiro
-				out.writeObject(nome); //enviar nome ficheiro
-				out.write(sizeFile,0,sizeFile.length); //envia ficheiro byte a byte
-				out.flush();
-
-				//Recebe se correu bem ou nao
-				String feed = (String) in.readObject();
-
-				if(feed.equals("err")) {
-					System.err.println("Ocorreu um erro a enviar ficheiro!");
-					in.close();
-					out.close();
-					socket.close();
-				}else {
-					System.out.println("Ficheiro enviado com sucesso");
-					in.close();
-					out.close();
-					socket.close();
-				}
-			}
-		}
-
+			
 	}
 
 	private void uploadFileSV(ObjectInputStream in, ObjectOutputStream out, String user) throws ClassNotFoundException, IOException {
@@ -225,6 +208,7 @@ public class ServerThread extends Thread {
 
 			bos.write(myByteArray, 0, current);
 			bos.flush();
+			bos.close();
 
 			//acabar operacao com sucesso
 			out.writeObject("ok");
