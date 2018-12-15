@@ -57,6 +57,8 @@ public class ServerThread extends Thread {
 
 				String s1 = (String)in.readObject();
 				String s2 = (String)in.readObject();
+				
+				System.out.println(s1 + "  ----  " + s2);
 
 				user = s1;
 				pass = s2;
