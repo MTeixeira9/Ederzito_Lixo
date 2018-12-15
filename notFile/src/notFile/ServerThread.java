@@ -115,10 +115,10 @@ public class ServerThread extends Thread {
 				uploadFileSV(in, out, user);
 				break;
 
-			case "-c":
+			/*case "-c":
 				System.out.println( "\n" + user + " quer fazer uma ligacao:");
 				connectToSV(in, out, user);
-				break;
+				break;*/
 
 			case "-quit":
 				System.out.println("\n" + user + " fez log out.");

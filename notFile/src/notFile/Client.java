@@ -127,7 +127,7 @@ public class Client {
 					break;
 				}
 
-				out.writeObject(comandos[0]);
+				//out.writeObject(comandos[0]);
 				connectTo(comandos[1], comandos[2], in, out, user);
 				break;	
 
@@ -285,11 +285,11 @@ public class Client {
 
 		//writeUsers(userIP);
 
-		out.writeObject(userIP);
-		String result = (String) in.readObject();
+		//out.writeObject(userIP);
+		//String result = (String) in.readObject();
 
-		if (result.equals("ok"))
-			System.out.println("Servidor de " + user + " adicionou a nova conexao");
+		//if (result.equals("ok"))
+			//System.out.println("Servidor de " + user + " adicionou a nova conexao");
 	}
 
 	/**
