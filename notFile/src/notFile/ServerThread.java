@@ -58,31 +58,13 @@ public class ServerThread extends Thread {
 				String s1 = (String)in.readObject();
 				String s2 = (String)in.readObject();
 
-				if (s1.equals("-n")) {
-					//String ip = InetAddress.getLocalHost().getHostAddress();
-					//String port = (String)in.readObject();
+				user = s1;
+				pass = s2;
 
-					BufferedWriter bw = new BufferedWriter(new FileWriter(Client.REP_FINAL + "conClients.txt", true));
-					bw.write(ipUser);
-					bw.newLine();
-					bw.flush();
-					bw.close();
-
-					bw = new BufferedWriter(new FileWriter(connectedClients, true));
-					bw.write(ipUser);
-					bw.newLine();
-					bw.flush();
-					bw.close();
-
-					in.close();
-					out.close();
-					socket.close();
-					//System.exit(1);
-
+				if (s1.equals("-s")){
+					subscribeSV(s2, out, in);
 				}
 				else {
-					user = s1;
-					pass = s2;
 
 					boolean verificou = verificaUserPass(user, pass);
 
@@ -94,8 +76,8 @@ public class ServerThread extends Thread {
 					}
 
 					out.writeObject("ls"); //LS = login com sucesso
-					pedeOperacoes(in, out, user, pass);
 				}
+				pedeOperacoes(in, out, user, pass);
 
 			} catch(ClassNotFoundException e1) {
 				e1.printStackTrace();
@@ -121,13 +103,13 @@ public class ServerThread extends Thread {
 		while (logado) { //cliente tem operacoes p/ fazer
 
 			switch ((String)in.readObject()) {
-			
+
 			case "-s":
 				System.out.println( "\n" + user + " recebeu uma ligacao:");
 				String tema = (String) in.readObject();
 				subscribeSV(tema, out, in);
 				break;
-			
+
 			case "-n":
 				System.out.println( "\n" + user + " recebeu uma ligacao:");
 				String userIP = (String) in.readObject();
@@ -167,13 +149,13 @@ public class ServerThread extends Thread {
 		File ficheirosTema = new File(rep + "/" + tema);
 		File[] ficheiros = ficheirosTema.listFiles();
 		int nFicheiros = ficheiros.length;
-		
+
 		if(nFicheiros == 0){
 			out.writeObject("nExiste");
 		}
 		else {
 			out.writeObject("existe");
-			
+
 			for (File file : ficheiros) {
 				/*
 				 *ENVIAR FICHEIRO 
@@ -195,7 +177,7 @@ public class ServerThread extends Thread {
 
 				//Recebe se correu bem ou nao
 				String feed = (String) in.readObject();
-				
+
 				if(feed.equals("err")) {
 					System.err.println("Ocorreu um erro a enviar ficheiro!");
 				}else {
@@ -203,7 +185,7 @@ public class ServerThread extends Thread {
 				}
 			}
 		}
-		
+
 	}
 
 	private void uploadFileSV(ObjectInputStream in, ObjectOutputStream out, String user) throws ClassNotFoundException, IOException {
@@ -223,7 +205,7 @@ public class ServerThread extends Thread {
 			File temaF = new File (rep + "/" + tema);
 			if (!temaF.exists())
 				temaF.mkdirs();
-				
+
 			String nome = (String) in.readObject(); //recebe nome do ficheiro
 			String pathF = temaF + "/" + nome;
 
@@ -315,6 +297,11 @@ public class ServerThread extends Thread {
 
 	private void registNewConnectedUser(String ipUser) throws IOException {
 
+		//LIMPAR FICHEIRO
+		PrintWriter writer = new PrintWriter(connectedClients);
+		writer.print("");
+		writer.close();
+		
 		BufferedWriter bw = new BufferedWriter(new FileWriter(connectedClients, true));
 		bw.write(ipUser);
 		bw.newLine();
@@ -398,7 +385,7 @@ public class ServerThread extends Thread {
 
 			if(!users.exists())
 				users.createNewFile();
-			
+
 			//repositorio de ficheiros
 			rep = new File(REP_FINAL + "Ficheiros");
 			if(!rep.exists())

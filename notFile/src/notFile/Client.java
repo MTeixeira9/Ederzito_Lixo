@@ -10,6 +10,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -138,7 +139,7 @@ public class Client {
 				out.writeObject(comandos[0]);
 				uploadFile(comandos[1], comandos[2], in, out, user);
 				break;
-				
+
 			case "-s":
 
 				if (comandos.length != 2) {
@@ -172,19 +173,19 @@ public class Client {
 	private void subscribe(String tema, ObjectInputStream in, ObjectOutputStream out, Socket soc, String user) throws IOException, ClassNotFoundException {
 
 		int count = 0;
-		
+
 		for (Socket socket : conexoes) {
 			ObjectOutputStream outS = new ObjectOutputStream(socket.getOutputStream());			
 			ObjectInputStream inS = new ObjectInputStream(socket.getInputStream());
-			
+
 			outS.writeObject("-s");
 			outS.writeObject(tema);
-			
+
 			String res = (String) inS.readObject();
-			
+
 			if (res.equals("existe")) {
 				count++;
-				
+
 				/*
 				 * Receber ficheiro
 				 */
@@ -205,14 +206,14 @@ public class Client {
 				//acabar operacao com sucesso
 				out.writeObject("ok");
 				System.out.println("Ficheiro recebido com sucesso");
-				
-				
+
+
 			}
 		}
-		
+
 		if (count == 0)
-				System.out.println("Não existem ficheiros sobre o tema que subscreveu!");
-		
+			System.out.println("Não existem ficheiros sobre o tema que subscreveu!");
+
 	}
 
 	private void uploadFile(String t, String f, ObjectInputStream in, ObjectOutputStream out, String user) throws ClassNotFoundException, IOException {
@@ -225,7 +226,7 @@ public class Client {
 		}
 		else {
 			out.writeObject("existe");
-			
+
 			/*
 			 *ENVIAR FICHEIRO 
 			 */			
@@ -246,7 +247,7 @@ public class Client {
 
 			//Recebe se correu bem ou nao
 			String feed = (String) in.readObject();
-			
+
 			if(feed.equals("err")) {
 				System.err.println("Ficheiro de " + user + " jah existe!");
 			}else {
@@ -263,6 +264,11 @@ public class Client {
 	}
 
 	private void writeUsers(String usersIP) throws IOException {
+		//LIMPAR FICHEIRO
+		PrintWriter writer = new PrintWriter(connectedClients);
+		writer.print("");
+		writer.close();
+		
 		BufferedWriter bw = new BufferedWriter(new FileWriter(connectedClients, true));
 		bw.write(usersIP);
 		bw.flush();
