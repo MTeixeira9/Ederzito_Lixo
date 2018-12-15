@@ -181,7 +181,8 @@ public class Client {
 			Socket socket = new Socket(entry.getKey(), entry.getValue());
 			ServerThread newServerThread = new ServerThread(socket);
 			newServerThread.start();
-			ObjectOutputStream outS = new ObjectOutputStream(socket.getOutputStream());			
+			ObjectOutputStream outS = new ObjectOutputStream(socket.getOutputStream());
+			outS.reset();
 			ObjectInputStream inS = new ObjectInputStream(socket.getInputStream());
 
 			outS.writeObject("-s");

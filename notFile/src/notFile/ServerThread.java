@@ -60,13 +60,13 @@ public class ServerThread extends Thread {
 				
 				System.out.println(s1 + "  ----  " + s2);
 
-				user = s1;
-				pass = s2;
-
 				if (s1.equals("-s")){
 					subscribeSV(s2, out, in);
 				}
 				else {
+					
+					user = s1;
+					pass = s2;
 
 					boolean verificou = verificaUserPass(user, pass);
 
