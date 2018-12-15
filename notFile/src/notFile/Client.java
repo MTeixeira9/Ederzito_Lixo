@@ -177,7 +177,7 @@ public class Client {
 
 		int count = 0;
 		//in.reset();
-		out.reset();
+		//out.reset();
 
 		for (Map.Entry<String, Integer> entry : conexoes.entrySet()) {
 			Socket socket = new Socket(entry.getKey(), entry.getValue());
