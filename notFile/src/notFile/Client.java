@@ -14,14 +14,16 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 public class Client {
 
 	public static final String REP_FINAL = "RepositorioLocal/";
 	public static File connectedClients;
-	public static List<Socket> conexoes;
+	public static Map<String, Integer> conexoes;
 
 	/**
 	 * Main do Cliente
@@ -56,7 +58,7 @@ public class Client {
 		Socket socket = null;
 		ObjectOutputStream out = null;
 		ObjectInputStream in = null;
-		conexoes = new ArrayList<>();
+		conexoes = new HashMap<String, Integer>();
 		Scanner sc = new Scanner(System.in);
 
 		if (args.length == 3) { 
@@ -104,7 +106,7 @@ public class Client {
 		boolean logado = true;
 
 		//recebe lista de clientes conetados
-		receiveConnectedClients(in, out);
+		//receiveConnectedClients(in, out);
 
 		while (logado) { //cliente tem operacoes p/ fazer
 
@@ -137,7 +139,7 @@ public class Client {
 				}
 
 				out.writeObject(comandos[0]);
-				uploadFile(comandos[1], comandos[2], in, out, user);
+				publishFile(comandos[1], comandos[2], in, out, user);
 				break;
 
 			case "-s":
@@ -148,7 +150,7 @@ public class Client {
 				}
 
 				out.writeObject(comandos[0]);
-				subscribe(comandos[1], in, out, socket, user);
+				subscribe(comandos[1], user);
 				break;
 
 			case "-quit":
@@ -170,11 +172,13 @@ public class Client {
 
 	}
 
-	private void subscribe(String tema, ObjectInputStream in, ObjectOutputStream out, Socket soc, String user) throws IOException, ClassNotFoundException {
+	@SuppressWarnings("resource")
+	private void subscribe(String tema, String user) throws IOException, ClassNotFoundException {
 
 		int count = 0;
 
-		for (Socket socket : conexoes) {
+		for (Map.Entry<String, Integer> entry : conexoes.entrySet()) {
+			Socket socket = new Socket(entry.getKey(), entry.getValue());
 			ObjectOutputStream outS = new ObjectOutputStream(socket.getOutputStream());			
 			ObjectInputStream inS = new ObjectInputStream(socket.getInputStream());
 
@@ -189,24 +193,27 @@ public class Client {
 				/*
 				 * Receber ficheiro
 				 */
-				int tamanhoFile = in.readInt(); //recebe tamanho do ficheiro
-				String nome = (String) in.readObject(); //recebe nome do ficheiro
+				int tamanhoFile = inS.readInt(); //recebe tamanho do ficheiro
+				String nome = (String) inS.readObject(); //recebe nome do ficheiro
 				String pathF = REP_FINAL + user + "/" + nome;
 
 				byte[] myByteArray = new byte[tamanhoFile];
 				FileOutputStream fos = new FileOutputStream(pathF);
 				@SuppressWarnings("resource")
 				BufferedOutputStream bos = new BufferedOutputStream(fos);
-				int bytesRead = in.read(myByteArray,0,myByteArray.length);
+				int bytesRead = inS.read(myByteArray,0,myByteArray.length);
 				int current = bytesRead;
 
 				bos.write(myByteArray, 0, current);
 				bos.flush();
 
 				//acabar operacao com sucesso
-				out.writeObject("ok");
+				outS.writeObject("ok");
 				System.out.println("Ficheiro recebido com sucesso");
 
+				inS.close();
+				outS.close();
+				socket.close();
 
 			}
 		}
@@ -216,7 +223,7 @@ public class Client {
 
 	}
 
-	private void uploadFile(String t, String f, ObjectInputStream in, ObjectOutputStream out, String user) throws ClassNotFoundException, IOException {
+	private void publishFile(String t, String f, ObjectInputStream in, ObjectOutputStream out, String user) throws ClassNotFoundException, IOException {
 
 		File file = new File(f);
 
@@ -264,10 +271,6 @@ public class Client {
 	}
 
 	private void writeUsers(String usersIP) throws IOException {
-		//LIMPAR FICHEIRO
-		PrintWriter writer = new PrintWriter(connectedClients);
-		writer.print("");
-		writer.close();
 		
 		BufferedWriter bw = new BufferedWriter(new FileWriter(connectedClients, true));
 		bw.write(usersIP);
@@ -277,8 +280,8 @@ public class Client {
 
 	private void connectTo(String userIP, String userPort, ObjectInputStream in, ObjectOutputStream out, String user) throws IOException, ClassNotFoundException {
 
-		Socket socket = new Socket(userIP, Integer.parseInt(userPort)); //ligacao ao servidor
-		conexoes.add(socket);
+		//Socket socket = new Socket(userIP, Integer.parseInt(userPort)); //ligacao ao servidor
+		conexoes.put(userIP, Integer.parseInt(userPort));
 
 		writeUsers(userIP);
 

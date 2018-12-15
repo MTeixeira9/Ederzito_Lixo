@@ -95,20 +95,14 @@ public class ServerThread extends Thread {
 		boolean logado = true;
 
 		//regista o cliente como connetado
-		registNewConnectedUser(ipUser);
+		//registNewConnectedUser(ipUser);
 
 		//envia ao cliente a lista de atuais clientes conetados
-		sendConnectedUsers(out);
+		//sendConnectedUsers(out);
 
 		while (logado) { //cliente tem operacoes p/ fazer
 
 			switch ((String)in.readObject()) {
-
-			case "-s":
-				System.out.println( "\n" + user + " recebeu uma ligacao:");
-				String tema = (String) in.readObject();
-				subscribeSV(tema, out, in);
-				break;
 
 			case "-n":
 				System.out.println( "\n" + user + " recebeu uma ligacao:");
@@ -180,8 +174,14 @@ public class ServerThread extends Thread {
 
 				if(feed.equals("err")) {
 					System.err.println("Ocorreu um erro a enviar ficheiro!");
+					in.close();
+					out.close();
+					socket.close();
 				}else {
 					System.out.println("Ficheiro enviado com sucesso");
+					in.close();
+					out.close();
+					socket.close();
 				}
 			}
 		}
@@ -296,11 +296,6 @@ public class ServerThread extends Thread {
 	}
 
 	private void registNewConnectedUser(String ipUser) throws IOException {
-
-		//LIMPAR FICHEIRO
-		PrintWriter writer = new PrintWriter(connectedClients);
-		writer.print("");
-		writer.close();
 		
 		BufferedWriter bw = new BufferedWriter(new FileWriter(connectedClients, true));
 		bw.write(ipUser);
