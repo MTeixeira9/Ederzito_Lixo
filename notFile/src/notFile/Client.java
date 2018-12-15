@@ -179,7 +179,6 @@ public class Client {
 		//in.reset();
 		//out.reset();
 		
-
 		for (Map.Entry<String, Integer> entry : conexoes.entrySet()) {
 			Socket socket = new Socket(entry.getKey(), entry.getValue());
 			ServerThread newServerThread = new ServerThread(socket);
