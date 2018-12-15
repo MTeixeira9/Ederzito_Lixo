@@ -247,9 +247,9 @@ public class Client {
 
 			bis.read(sizeFile,0,sizeFile.length);
 			bis.close();			
-			out.writeInt(sizeFile.length); //envia tamanho do ficheiro
-			out.writeObject(nome); //enviar nome ficheiro
-			out.write(sizeFile,0,sizeFile.length); //envia ficheiro byte a byte
+			outS.writeInt(sizeFile.length); //envia tamanho do ficheiro
+			outS.writeObject(nome); //enviar nome ficheiro
+			outS.write(sizeFile,0,sizeFile.length); //envia ficheiro byte a byte
 
 			outS.close();
 			socket.close();

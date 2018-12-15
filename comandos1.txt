@@ -1,1 +1,2 @@
+-c 10.101.148.57 23232
 -p futebol RepositorioLocal/Tome/barcaNews.txt
