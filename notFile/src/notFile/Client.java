@@ -22,9 +22,9 @@ import java.util.Scanner;
 public class Client {
 
 	public static final String REP_FINAL = "RepositorioLocal/";
-	public static File connectedClients;
 	private static Map<String, Integer> conexoes;
-	public static List<String> subscricoes;
+	public static File subscricoes;
+	
 
 	/**
 	 * Main do Cliente
@@ -60,7 +60,6 @@ public class Client {
 		ObjectOutputStream out = null;
 		ObjectInputStream in = null;
 		conexoes = new HashMap<String, Integer>();
-		subscricoes = new ArrayList<>();
 		Scanner sc = new Scanner(System.in);
 
 		if (args.length == 3) { 
@@ -177,7 +176,10 @@ public class Client {
 	@SuppressWarnings("resource")
 	private void subscribe(String tema) throws IOException, ClassNotFoundException {
 
-		subscricoes.add(tema);
+		BufferedWriter bw = new BufferedWriter(new FileWriter(subscricoes, true));
+		bw.write(tema);
+		bw.flush();
+		bw.close();
 
 	}
 
@@ -247,29 +249,14 @@ public class Client {
 
 			bis.read(sizeFile,0,sizeFile.length);
 			bis.close();			
-			out.writeInt(sizeFile.length); //envia tamanho do ficheiro
-			out.writeObject(nome); //enviar nome ficheiro
-			out.write(sizeFile,0,sizeFile.length); //envia ficheiro byte a byte
+			outS.writeInt(sizeFile.length); //envia tamanho do ficheiro
+			outS.writeObject(nome); //enviar nome ficheiro
+			outS.write(sizeFile,0,sizeFile.length); //envia ficheiro byte a byte
 
 			outS.close();
 			socket.close();
 		}
 
-	}
-
-	private void receiveConnectedClients(ObjectInputStream in, ObjectOutputStream out) throws IOException, ClassNotFoundException {
-
-		String users = (String) in.readObject();		
-		writeUsers(users);
-
-	}
-
-	private void writeUsers(String usersIP) throws IOException {
-
-		BufferedWriter bw = new BufferedWriter(new FileWriter(connectedClients, true));
-		bw.write(usersIP);
-		bw.flush();
-		bw.close();
 	}
 
 	private void connectTo(String userIP, String userPort, ObjectInputStream in, ObjectOutputStream out, String user) throws IOException, ClassNotFoundException {
@@ -316,9 +303,11 @@ public class Client {
 			repUserLocal.mkdirs(); // Cria diretoria
 		}
 
-		//cria ficheiro conClients.txt sempre que o cliente se liga
-		connectedClients = new File(REP_FINAL + "conClients.txt");
-		connectedClients.createNewFile();
+		//cria ficheiro subs.txt 
+		subscricoes = new File(REP_FINAL + "subs.txt");
+		
+		if(!subscricoes.exists())
+			subscricoes.createNewFile();
 	}
 
 }

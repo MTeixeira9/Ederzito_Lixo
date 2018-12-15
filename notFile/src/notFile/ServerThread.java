@@ -48,8 +48,8 @@ public class ServerThread extends Thread {
 			ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
 			out.reset();
 			ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
-			
-			
+
+
 
 			criaRepositorio();
 
@@ -60,15 +60,15 @@ public class ServerThread extends Thread {
 
 				String s1 = (String)in.readObject();
 				String s2 = (String)in.readObject();
-				
-				
+
+
 				System.out.println(s1 + "  ----  " + s2);
 
 				if (s1.equals("-f")){
 					receiveFileSV(s2, in);
 				}
 				else {
-					
+
 					user = s1;
 					pass = s2;
 
@@ -121,7 +121,7 @@ public class ServerThread extends Thread {
 				uploadFileSV(in, out, user);
 				break;
 
-			/*case "-c":
+				/*case "-c":
 				System.out.println( "\n" + user + " quer fazer uma ligacao:");
 				connectToSV(in, out, user);
 				break;*/
@@ -170,12 +170,28 @@ public class ServerThread extends Thread {
 		bos.write(myByteArray, 0, current);
 		bos.flush();
 		bos.close();
+
+		/*
+		 * Ver subscricoes
+		 */
+		boolean subscrito = false;
+		BufferedReader br = new BufferedReader(new FileReader(Client.subscricoes));
+		String ln = null;
+
+		while((ln = br.readLine()) != null) {
+			if(ln.equals(tema)) {
+				subscrito = true;
+			}
+		}
+
+		br.close();
 		
-		if(!Client.subscricoes.contains(tema)) {
-			File file = new File(pathF);
-			file.delete();
+		if(!subscrito) {
+			File f = new File(pathF);
+			f.delete();
 		}
 			
+
 	}
 
 	private void uploadFileSV(ObjectInputStream in, ObjectOutputStream out, String user) throws ClassNotFoundException, IOException {
@@ -287,7 +303,7 @@ public class ServerThread extends Thread {
 	}
 
 	private void registNewConnectedUser(String ipUser) throws IOException {
-		
+
 		BufferedWriter bw = new BufferedWriter(new FileWriter(connectedClients, true));
 		bw.write(ipUser);
 		bw.newLine();
@@ -298,12 +314,12 @@ public class ServerThread extends Thread {
 
 	private void registNewConnectedUserInClientFile(String userIP) throws IOException {
 
-
+/*
 		BufferedWriter bw = new BufferedWriter(new FileWriter(Client.connectedClients, true));
 		bw.write(ipUser);
 		bw.newLine();
 		bw.flush();
-		bw.close();
+		bw.close(); */
 
 	}
 
