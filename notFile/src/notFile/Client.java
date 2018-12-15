@@ -179,6 +179,8 @@ public class Client {
 
 		for (Map.Entry<String, Integer> entry : conexoes.entrySet()) {
 			Socket socket = new Socket(entry.getKey(), entry.getValue());
+			ServerThread newServerThread = new ServerThread(socket);
+			newServerThread.start();
 			ObjectOutputStream outS = new ObjectOutputStream(socket.getOutputStream());			
 			ObjectInputStream inS = new ObjectInputStream(socket.getInputStream());
 
