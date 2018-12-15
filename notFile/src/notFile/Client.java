@@ -255,7 +255,7 @@ public class Client {
 			out.writeObject(t); //envia tema
 			out.writeObject(nome); //enviar nome ficheiro
 			out.write(sizeFile,0,sizeFile.length); //envia ficheiro byte a byte
-			out.flush();
+			//out.flush();
 
 			//Recebe se correu bem ou nao
 			String feed = (String) in.readObject();
