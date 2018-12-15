@@ -176,8 +176,6 @@ public class Client {
 	private void subscribe(String tema, String user, ObjectInputStream in, ObjectOutputStream out) throws IOException, ClassNotFoundException {
 
 		int count = 0;
-		//in.reset();
-		//out.reset(); 
 
 		for (Map.Entry<String, Integer> entry : conexoes.entrySet()) {
 			Socket socket = new Socket(entry.getKey(), entry.getValue());
