@@ -149,7 +149,7 @@ public class Client {
 					break;
 				}
 
-				out.writeObject(comandos[0]);
+				//out.writeObject(comandos[0]);
 				subscribe(comandos[1], user);
 				break;
 
