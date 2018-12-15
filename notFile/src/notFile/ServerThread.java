@@ -46,7 +46,6 @@ public class ServerThread extends Thread {
 		try {
 
 			ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-			out.reset();
 			ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
 
 
