@@ -182,31 +182,32 @@ public class Client {
 			ServerThread newServerThread = new ServerThread(socket);
 			newServerThread.start();
 			AppendingObjectOutputStream outS = new AppendingObjectOutputStream(socket.getOutputStream());
-			ObjectInputStream inS = new ObjectInputStream(socket.getInputStream());
+			in.close();
+			in = new ObjectInputStream(socket.getInputStream());
 
 			outS.writeObject("-s");
 			outS.writeObject(tema);
 
-			String res = (String) inS.readObject();
+			String res = (String) in.readObject();
 
 			if (res.equals("existe")) {
 				count++;
 
-				int nFicheiros = inS.readInt();
+				int nFicheiros = in.readInt();
 
 				for (int i = 0; i < nFicheiros; i++) {
 					/*
 					 * Receber ficheiro
 					 */
-					int tamanhoFile = inS.readInt(); //recebe tamanho do ficheiro
-					String nome = (String) inS.readObject(); //recebe nome do ficheiro
+					int tamanhoFile = in.readInt(); //recebe tamanho do ficheiro
+					String nome = (String) in.readObject(); //recebe nome do ficheiro
 					String pathF = REP_FINAL + user + "/" + nome;
 
 					byte[] myByteArray = new byte[tamanhoFile];
 					FileOutputStream fos = new FileOutputStream(pathF);
 					@SuppressWarnings("resource")
 					BufferedOutputStream bos = new BufferedOutputStream(fos);
-					int bytesRead = inS.read(myByteArray,0,myByteArray.length);
+					int bytesRead = in.read(myByteArray,0,myByteArray.length);
 					int current = bytesRead;
 
 					bos.write(myByteArray, 0, current);
@@ -216,7 +217,7 @@ public class Client {
 					outS.writeObject("ok");
 					System.out.println("Ficheiro recebido com sucesso");
 
-					inS.close();
+					in.close();
 					outS.close();
 					socket.close();
 				}
