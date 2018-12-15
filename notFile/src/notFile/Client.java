@@ -307,7 +307,7 @@ public class Client {
 		subscricoes = new File(REP_FINAL + "subs.txt");
 		
 		if(!subscricoes.exists())
-			subscricoes.createNewFile();
+			subscricoes.createNewFile(); 
 	}
 
 }
