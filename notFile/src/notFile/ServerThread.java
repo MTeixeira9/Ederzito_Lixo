@@ -76,8 +76,8 @@ public class ServerThread extends Thread {
 					}
 
 					out.writeObject("ls"); //LS = login com sucesso
-				}
-				pedeOperacoes(in, out, user, pass);
+					pedeOperacoes(in, out, user, pass);
+				}				
 
 			} catch(ClassNotFoundException e1) {
 				e1.printStackTrace();
@@ -149,6 +149,7 @@ public class ServerThread extends Thread {
 		}
 		else {
 			out.writeObject("existe");
+			out.writeInt(nFicheiros);
 
 			for (File file : ficheiros) {
 				/*

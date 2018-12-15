@@ -190,31 +190,34 @@ public class Client {
 			if (res.equals("existe")) {
 				count++;
 
-				/*
-				 * Receber ficheiro
-				 */
-				int tamanhoFile = inS.readInt(); //recebe tamanho do ficheiro
-				String nome = (String) inS.readObject(); //recebe nome do ficheiro
-				String pathF = REP_FINAL + user + "/" + nome;
+				int nFicheiros = inS.readInt();
 
-				byte[] myByteArray = new byte[tamanhoFile];
-				FileOutputStream fos = new FileOutputStream(pathF);
-				@SuppressWarnings("resource")
-				BufferedOutputStream bos = new BufferedOutputStream(fos);
-				int bytesRead = inS.read(myByteArray,0,myByteArray.length);
-				int current = bytesRead;
+				for (int i = 0; i < nFicheiros; i++) {
+					/*
+					 * Receber ficheiro
+					 */
+					int tamanhoFile = inS.readInt(); //recebe tamanho do ficheiro
+					String nome = (String) inS.readObject(); //recebe nome do ficheiro
+					String pathF = REP_FINAL + user + "/" + nome;
 
-				bos.write(myByteArray, 0, current);
-				bos.flush();
+					byte[] myByteArray = new byte[tamanhoFile];
+					FileOutputStream fos = new FileOutputStream(pathF);
+					@SuppressWarnings("resource")
+					BufferedOutputStream bos = new BufferedOutputStream(fos);
+					int bytesRead = inS.read(myByteArray,0,myByteArray.length);
+					int current = bytesRead;
 
-				//acabar operacao com sucesso
-				outS.writeObject("ok");
-				System.out.println("Ficheiro recebido com sucesso");
+					bos.write(myByteArray, 0, current);
+					bos.flush();
 
-				inS.close();
-				outS.close();
-				socket.close();
+					//acabar operacao com sucesso
+					outS.writeObject("ok");
+					System.out.println("Ficheiro recebido com sucesso");
 
+					inS.close();
+					outS.close();
+					socket.close();
+				}
 			}
 		}
 
@@ -271,7 +274,7 @@ public class Client {
 	}
 
 	private void writeUsers(String usersIP) throws IOException {
-		
+
 		BufferedWriter bw = new BufferedWriter(new FileWriter(connectedClients, true));
 		bw.write(usersIP);
 		bw.flush();
@@ -289,7 +292,7 @@ public class Client {
 		//String result = (String) in.readObject();
 
 		//if (result.equals("ok"))
-			//System.out.println("Servidor de " + user + " adicionou a nova conexao");
+		//System.out.println("Servidor de " + user + " adicionou a nova conexao");
 	}
 
 	/**
