@@ -283,7 +283,7 @@ public class Client {
 		//Socket socket = new Socket(userIP, Integer.parseInt(userPort)); //ligacao ao servidor
 		conexoes.put(userIP, Integer.parseInt(userPort));
 
-		writeUsers(userIP);
+		//writeUsers(userIP);
 
 		out.writeObject(userIP);
 		String result = (String) in.readObject();

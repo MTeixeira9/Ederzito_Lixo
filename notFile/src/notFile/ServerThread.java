@@ -239,7 +239,7 @@ public class ServerThread extends Thread {
 	private void connectToSV(ObjectInputStream in, ObjectOutputStream out, String user) throws ClassNotFoundException, IOException {
 
 		String usersIP = (String) in.readObject();
-		registNewConnectedUser(usersIP);
+		//registNewConnectedUser(usersIP);
 		out.writeObject("ok");
 
 	}
