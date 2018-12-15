@@ -178,12 +178,13 @@ public class Client {
 		int count = 0;
 		//in.reset();
 		//out.reset();
+		
 
 		for (Map.Entry<String, Integer> entry : conexoes.entrySet()) {
 			Socket socket = new Socket(entry.getKey(), entry.getValue());
 			ServerThread newServerThread = new ServerThread(socket);
 			newServerThread.start();
-			ObjectOutputStream outS = new ObjectOutputStream(socket.getOutputStream());
+			AppendingObjectOutputStream outS = new AppendingObjectOutputStream(socket.getOutputStream());
 			ObjectInputStream inS = new ObjectInputStream(socket.getInputStream());
 
 			outS.writeObject("-s");
