@@ -150,7 +150,7 @@ public class Client {
 				}
 
 				//out.writeObject(comandos[0]);
-				subscribe(comandos[1], user);
+				subscribe(comandos[1], user, in, out);
 				break;
 
 			case "-quit":
@@ -173,16 +173,17 @@ public class Client {
 	}
 
 	@SuppressWarnings("resource")
-	private void subscribe(String tema, String user) throws IOException, ClassNotFoundException {
+	private void subscribe(String tema, String user, ObjectInputStream in, ObjectOutputStream out) throws IOException, ClassNotFoundException {
 
 		int count = 0;
+		in.reset();
+		out.reset();
 
 		for (Map.Entry<String, Integer> entry : conexoes.entrySet()) {
 			Socket socket = new Socket(entry.getKey(), entry.getValue());
 			ServerThread newServerThread = new ServerThread(socket);
 			newServerThread.start();
 			ObjectOutputStream outS = new ObjectOutputStream(socket.getOutputStream());
-			outS.reset();
 			ObjectInputStream inS = new ObjectInputStream(socket.getInputStream());
 
 			outS.writeObject("-s");
