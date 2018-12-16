@@ -253,7 +253,7 @@ public class Client {
 			outS.writeObject(nome); //enviar nome ficheiro
 			outS.write(sizeFile,0,sizeFile.length); //envia ficheiro byte a byte
 
-			//outS.close();
+			outS.close();
 			socket.close();
 		}
 
