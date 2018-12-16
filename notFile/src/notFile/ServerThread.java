@@ -174,7 +174,7 @@ public class ServerThread extends Thread {
 		 * Ver subscricoes
 		 */
 		boolean subscrito = false;
-		BufferedReader br = new BufferedReader(new FileReader(Client.subscricoes));
+		BufferedReader br = new BufferedReader(new FileReader("RepositorioLocal/Tome/subs.txt"));
 		String ln = null;
 
 		while((ln = br.readLine()) != null) {

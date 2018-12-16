@@ -304,7 +304,7 @@ public class Client {
 		}
 
 		//cria ficheiro subs.txt 
-		subscricoes = new File(REP_FINAL + "subs.txt");
+		subscricoes = new File(repUserLocal + "/subs.txt");
 		
 		if(!subscricoes.exists())
 			subscricoes.createNewFile(); 
