@@ -148,7 +148,7 @@ public class ServerThread extends Thread {
 		/*
 		 * TEMA
 		 */
-		File temaF = new File (rep + "/" + tema);
+		File temaF = new File ("RepositorioLocal/Tome/" + tema);
 		if (!temaF.exists())
 			temaF.mkdirs();
 
@@ -157,7 +157,7 @@ public class ServerThread extends Thread {
 		 */		
 		int tamanhoFile = in.readInt(); //recebe tamanho do ficheiro
 		String nome = (String) in.readObject(); //recebe nome do ficheiro
-		String pathF = "RepositorioLocal/Tome/" + nome;
+		String pathF = "RepositorioLocal/Tome/" + tema + "/" + nome;
 
 		byte[] myByteArray = new byte[tamanhoFile];
 		FileOutputStream fos = new FileOutputStream(pathF);
