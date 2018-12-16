@@ -225,7 +225,7 @@ public class Client {
 		/**
 		 * FLOODING
 		 */
-		int count = 0;
+		//int count = 0;
 
 		for (Map.Entry<String, Integer> entry : conexoes.entrySet()) {
 			Socket socket = new Socket(entry.getKey(), entry.getValue());
